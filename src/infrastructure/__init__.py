@@ -1,0 +1,1 @@
+"""Dış bağımlılıkların somut uygulamaları."""

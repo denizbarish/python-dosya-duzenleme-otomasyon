@@ -1,0 +1,46 @@
+{
+  "default_folder": "Diğer",
+  "rules": {
+    "Belgeler": [
+      ".pdf",
+      ".doc",
+      ".docx",
+      ".txt",
+      ".xlsx",
+      ".pptx"
+    ],
+    "Görseller": [
+      ".jpg",
+      ".jpeg",
+      ".png",
+      ".gif",
+      ".webp"
+    ],
+    "Arşiv": [
+      ".zip",
+      ".rar",
+      ".7z",
+      ".tar",
+      ".gz"
+    ],
+    "Kod": [
+      ".py",
+      ".js",
+      ".ts",
+      ".java",
+      ".c",
+      ".cpp"
+    ],
+    "Video": [
+      ".mp4",
+      ".mov",
+      ".mkv",
+      ".avi"
+    ],
+    "Ses": [
+      ".mp3",
+      ".wav",
+      ".flac"
+    ]
+  }
+}

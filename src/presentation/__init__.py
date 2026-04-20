@@ -1,0 +1,1 @@
+"""Kullanıcıya sunulan arayüz katmanı."""
