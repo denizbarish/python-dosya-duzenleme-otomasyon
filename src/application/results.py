@@ -27,3 +27,22 @@ class DirectoryStats:
     file_count: int
     directory_count: int
     total_size_bytes: int
+
+
+@dataclass(frozen=True)
+class FileTypeDistribution:
+    """Dosya türüne göre dağılım."""
+    distribution: dict[str, int]  # Tür -> Sayı
+
+
+@dataclass(frozen=True)
+class ExtensionAnalysis:
+    """Uzantıya göre dağılım."""
+    distribution: dict[str, int]  # Uzantı -> Sayı
+
+
+@dataclass(frozen=True)
+class DirectoryDepthAnalysis:
+    """Klasör derinlik analizi."""
+    max_depth: int
+    depth_distribution: dict[int, int]  # Derinlik -> Klasör sayısı

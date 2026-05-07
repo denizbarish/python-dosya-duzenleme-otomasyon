@@ -37,6 +37,8 @@ class ConsoleApplication:
         print("5) Kurallara göre dosyaları düzenle")
         print("6) Dosya/Klasör ara")
         print("7) Klasör istatistiği al")
+        print("8) Gelişmiş Filtreleme")
+        print("9) Derinlemesine Analiz")
         print("0) Çıkış")
 
     def _handle_choice(self, choice: str) -> None:
@@ -48,6 +50,8 @@ class ConsoleApplication:
             "5": self._organize_items,
             "6": self._search_items,
             "7": self._show_stats,
+            "8": self._advanced_filter,
+            "9": self._deep_analysis,
         }
 
         action = handlers.get(choice)
@@ -139,3 +143,60 @@ class ConsoleApplication:
         print(f"- Dosya sayısı: {stats.file_count}")
         print(f"- Klasör sayısı: {stats.directory_count}")
         print(f"- Toplam boyut: {stats.total_size_bytes} byte")
+
+    def _advanced_filter(self) -> None:
+        from datetime import datetime
+
+        root = Path(input("Filtreleme yapılacak klasör: ").strip()).expanduser()
+        recursive = input("Alt klasörler de taransın mı? (e/h): ").strip().lower() == "e"
+        extension = input("Uzantı filtresi (örnek: .pdf, boş bırakabilirsiniz): ").strip() or None
+
+        min_size_raw = input("Minimum boyut (byte, boş bırakabilirsiniz): ").strip()
+        min_size = int(min_size_raw) if min_size_raw else None
+
+        max_size_raw = input("Maksimum boyut (byte, boş bırakabilirsiniz): ").strip()
+        max_size = int(max_size_raw) if max_size_raw else None
+
+        after_raw = input("Değişim tarihi (YYYY-MM-DD'den sonra, boş bırakabilirsiniz): ").strip()
+        after_date = datetime.fromisoformat(after_raw) if after_raw else None
+
+        before_raw = input("Değişim tarihi (YYYY-MM-DD'den önce, boş bırakabilirsiniz): ").strip()
+        before_date = datetime.fromisoformat(before_raw) if before_raw else None
+
+        items = self._service.list_items_advanced(
+            root=root,
+            recursive=recursive,
+            extension_filter=extension,
+            min_size_bytes=min_size,
+            max_size_bytes=max_size,
+            modified_after=after_date,
+            modified_before=before_date,
+        )
+
+        if not items:
+            print("Sonuç bulunamadı.")
+            return
+
+        print("\nGelişmiş Filtreleme Sonuçları:")
+        for item in items:
+            kind = "Klasör" if item.is_directory else "Dosya"
+            print(f"- [{kind}] {item.path} | Boyut: {item.size_bytes} byte")
+
+    def _deep_analysis(self) -> None:
+        root = Path(input("Analiz yapılacak klasör yolu: ").strip()).expanduser()
+
+        # Dosya türü analizi
+        file_type_dist = self._service.analyze_file_types(root=root, recursive=True)
+        print("\nDosya Türü Dağılımı:")
+        for ext, count in sorted(file_type_dist.distribution.items(), key=lambda x: x[1], reverse=True):
+            print(f"- {ext}: {count} dosya")
+
+        # Klasör derinlik analizi
+        depth_analysis = self._service.analyze_directory_depth(root=root)
+        print(f"\nKlasör Derinliği:")
+        print(f"- Maksimum derinlik: {depth_analysis.max_depth}")
+        if depth_analysis.depth_distribution:
+            print("- Derinliğe göre klasör sayısı:")
+            for depth in sorted(depth_analysis.depth_distribution.keys()):
+                count = depth_analysis.depth_distribution[depth]
+                print(f"  - Derinlik {depth}: {count} klasör")

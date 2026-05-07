@@ -1,7 +1,9 @@
 import json
 import unittest
+from datetime import datetime, timedelta
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from time import sleep
 
 from src.application.file_manager_service import FileManagerService
 from src.domain.exceptions import InvalidOperationError
@@ -79,6 +81,80 @@ class FileManagerServiceTests(unittest.TestCase):
 
         self.assertEqual(len(summary.moved), 1)
         self.assertTrue((target_dir / "Belgeler" / turkish_name).exists())
+
+    def test_invalid_rule_config_should_raise_clear_error(self) -> None:
+        broken_config_path = self.root / "broken_rules.json"
+        broken_config_path.write_text(
+            json.dumps({"default_folder": 123, "rules": []}), encoding="utf-8"
+        )
+
+        with self.assertRaises(ValueError):
+            JsonRuleProvider(broken_config_path)
+
+    def test_advanced_filter_by_size_range(self) -> None:
+        target_dir = self.root / "hedef"
+        target_dir.mkdir(exist_ok=True)
+
+        (target_dir / "küçük.txt").write_text("x", encoding="utf-8")
+        (target_dir / "orta.txt").write_text("y" * 100, encoding="utf-8")
+        (target_dir / "büyük.txt").write_text("z" * 1000, encoding="utf-8")
+
+        # Sadece 50-500 byte aralığındaki dosyaları getir
+        items = self.service.list_items_advanced(
+            root=target_dir, recursive=False, min_size_bytes=50, max_size_bytes=500
+        )
+
+        # "orta.txt" sadece alınmalı (100 byte)
+        self.assertEqual(len(items), 1)
+        self.assertEqual(items[0].path.name, "orta.txt")
+
+    def test_advanced_filter_by_extension(self) -> None:
+        target_dir = self.root / "hedef"
+        target_dir.mkdir(exist_ok=True)
+
+        (target_dir / "doc.txt").write_text("text", encoding="utf-8")
+        (target_dir / "doc.pdf").write_text("pdf", encoding="utf-8")
+        (target_dir / "doc.png").write_text("img", encoding="utf-8")
+
+        items = self.service.list_items_advanced(
+            root=target_dir, recursive=False, extension_filter=".txt"
+        )
+
+        self.assertEqual(len(items), 1)
+        self.assertEqual(items[0].path.suffix.lower(), ".txt")
+
+    def test_analyze_file_types_produces_distribution(self) -> None:
+        target_dir = self.root / "hedef"
+        target_dir.mkdir(exist_ok=True)
+
+        (target_dir / "rapor.pdf").write_text("content", encoding="utf-8")
+        (target_dir / "özet.pdf").write_text("content", encoding="utf-8")
+        (target_dir / "görsel.png").write_text("img", encoding="utf-8")
+        (target_dir / "veri").write_text("data", encoding="utf-8")  # Uzantısız
+
+        analysis = self.service.analyze_file_types(target_dir, recursive=False)
+
+        self.assertEqual(analysis.distribution.get(".pdf"), 2)
+        self.assertEqual(analysis.distribution.get(".png"), 1)
+        self.assertEqual(analysis.distribution.get("(uzantısız)"), 1)
+
+    def test_analyze_directory_depth(self) -> None:
+        root_dir = self.root / "depth_test"
+        root_dir.mkdir(exist_ok=True)
+
+        level1 = root_dir / "level1"
+        level1.mkdir(exist_ok=True)
+
+        level2 = level1 / "level2"
+        level2.mkdir(exist_ok=True)
+
+        level3 = level2 / "level3"
+        level3.mkdir(exist_ok=True)
+
+        analysis = self.service.analyze_directory_depth(root_dir)
+
+        self.assertEqual(analysis.max_depth, 3)
+        self.assertGreater(len(analysis.depth_distribution), 0)
 
 
 if __name__ == "__main__":

@@ -15,6 +15,13 @@ Kullanıcının belirlediği dizinlerde dosya ve klasörleri yönetmesini, arama
 - Uzantı bazlı otomatik dosya düzenleme
 - Arama ve temel istatistik alma
 
+## İleri Özellikler (Faz 3)
+
+- **Gelişmiş Filtreleme**: Boyut aralığı, tarih aralığı, uzantı filtresi ile detaylı seçim
+- **Dosya Türü Analizi**: Klasördeki dosyaların türlerine göre dağılım
+- **Klasör Derinlik Analizi**: Klasör yapısının maksimum derinliği ve dağılımı
+- **Geliştirilmiş UI**: Yeni menü seçenekleriyle (8 ve 9) daha işlevsel arayüz
+
 ## Mimari Yapı
 
 Proje SOLID prensiplerine uygun olacak şekilde 4 katmanda tasarlanmıştır:
@@ -67,3 +74,5 @@ Uzantı-kategori eşlemeleri `config/organizasyon_kurallari.json` dosyasından o
 - Durum raporu şablonu: [docs/durum_raporu_sablonu.md](docs/durum_raporu_sablonu.md)
 - Düzenli rapor kayıtları: [docs/durum_raporlari.md](docs/durum_raporlari.md)
 - Doldurulmuş Rapor-1: [docs/BLP_sube_no_Grup_17_dosya_ve_klasor_duzenleme_otomasyon_araci_rapor_1.md](docs/BLP_sube_no_Grup_17_dosya_ve_klasor_duzenleme_otomasyon_araci_rapor_1.md)
+- Doldurulmuş Rapor-2: [docs/BLP_sube_no_Grup_17_dosya_ve_klasor_duzenleme_otomasyon_araci_rapor_2.md](docs/BLP_sube_no_Grup_17_dosya_ve_klasor_duzenleme_otomasyon_araci_rapor_2.md)
+- Doldurulmuş Rapor-3: [docs/BLP_sube_no_Grup_17_dosya_ve_klasor_duzenleme_otomasyon_araci_rapor_3.md](docs/BLP_sube_no_Grup_17_dosya_ve_klasor_duzenleme_otomasyon_araci_rapor_3.md)

@@ -1,7 +1,16 @@
+from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
-from src.application.results import DirectoryStats, MoveRecord, OperationResult, OrganizationSummary
+from src.application.results import (
+    DirectoryDepthAnalysis,
+    DirectoryStats,
+    ExtensionAnalysis,
+    FileTypeDistribution,
+    MoveRecord,
+    OperationResult,
+    OrganizationSummary,
+)
 from src.domain.entities import FileEntry
 from src.domain.exceptions import InvalidOperationError, InvalidPathError
 from src.domain.protocols import FileSystemGateway, RuleProvider
@@ -159,3 +168,105 @@ class FileManagerService:
         if not normalized.startswith("."):
             normalized = f".{normalized}"
         return normalized
+
+    def list_items_advanced(
+        self,
+        root: Path,
+        recursive: bool = False,
+        extension_filter: Optional[str] = None,
+        min_size_bytes: Optional[int] = None,
+        max_size_bytes: Optional[int] = None,
+        modified_after: Optional[datetime] = None,
+        modified_before: Optional[datetime] = None,
+    ) -> list[FileEntry]:
+        """Gelişmiş filtreleme ile öğeleri listele."""
+        self._validate_existing_directory(root)
+        items = self._file_system.list_entries(root=root, recursive=recursive, include_hidden=False)
+
+        # Uzantı filtresi
+        if extension_filter:
+            normalized_extension = self._normalize_extension(extension_filter)
+            items = [
+                item
+                for item in items
+                if (not item.is_directory and item.path.suffix.lower() == normalized_extension)
+            ]
+
+        # Boyut filtreleri
+        if min_size_bytes is not None:
+            items = [item for item in items if item.size_bytes >= min_size_bytes]
+
+        if max_size_bytes is not None:
+            items = [item for item in items if item.size_bytes <= max_size_bytes]
+
+        # Tarih filtreleri
+        if modified_after is not None:
+            items = [
+                item
+                for item in items
+                if datetime.fromtimestamp(item.modified_time_unix) >= modified_after
+            ]
+
+        if modified_before is not None:
+            items = [
+                item
+                for item in items
+                if datetime.fromtimestamp(item.modified_time_unix) <= modified_before
+            ]
+
+        return sorted(items, key=lambda item: item.path.name.lower())
+
+    def analyze_file_types(self, root: Path, recursive: bool = True) -> FileTypeDistribution:
+        """Dosya türlerine göre dağılımı analiz et."""
+        self._validate_existing_directory(root)
+        entries = self._file_system.list_entries(root=root, recursive=recursive, include_hidden=False)
+        files = [entry for entry in entries if not entry.is_directory]
+
+        distribution: dict[str, int] = {}
+        for file_entry in files:
+            suffix = file_entry.path.suffix.lower()
+            if not suffix:
+                suffix = "(uzantısız)"
+            distribution[suffix] = distribution.get(suffix, 0) + 1
+
+        return FileTypeDistribution(distribution=distribution)
+
+    def analyze_extensions(self, root: Path, recursive: bool = True) -> ExtensionAnalysis:
+        """Uzantıların dağılımını analiz et (dosya sayısı)."""
+        analysis = self.analyze_file_types(root, recursive)
+        return ExtensionAnalysis(distribution=analysis.distribution)
+
+    def analyze_directory_depth(self, root: Path) -> DirectoryDepthAnalysis:
+        """Klasör derinliğini analiz et."""
+        self._validate_existing_directory(root)
+
+        def calculate_depth(path: Path, current_depth: int = 0) -> int:
+            """Rekursif olarak maksimum derinliği hesapla."""
+            max_d = current_depth
+            try:
+                for item in path.iterdir():
+                    if item.is_dir() and not item.name.startswith("."):
+                        max_d = max(max_d, calculate_depth(item, current_depth + 1))
+            except (OSError, PermissionError):
+                pass
+            return max_d
+
+        def collect_depth_distribution(path: Path, current_depth: int = 0) -> dict[int, int]:
+            """Derinliğe göre klasör sayısını topla."""
+            dist: dict[int, int] = {}
+            if current_depth > 0:
+                dist[current_depth] = dist.get(current_depth, 0) + 1
+            try:
+                for item in path.iterdir():
+                    if item.is_dir() and not item.name.startswith("."):
+                        sub_dist = collect_depth_distribution(item, current_depth + 1)
+                        for depth, count in sub_dist.items():
+                            dist[depth] = dist.get(depth, 0) + count
+            except (OSError, PermissionError):
+                pass
+            return dist
+
+        max_depth = calculate_depth(root)
+        depth_distribution = collect_depth_distribution(root)
+
+        return DirectoryDepthAnalysis(max_depth=max_depth, depth_distribution=depth_distribution)

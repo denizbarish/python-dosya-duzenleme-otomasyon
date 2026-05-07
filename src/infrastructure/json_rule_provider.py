@@ -26,13 +26,43 @@ class JsonRuleProvider:
         with self._config_path.open("r", encoding="utf-8-sig") as config_file:
             payload = json.load(config_file)
 
-        self._default_folder = payload.get("default_folder", "Diğer")
+        self._validate_payload(payload)
+
+        self._default_folder = payload.get("default_folder", "Diğer").strip()
         raw_rules: dict[str, list[str]] = payload.get("rules", {})
 
         for folder_name, extensions in raw_rules.items():
+            cleaned_folder_name = folder_name.strip()
+            if not cleaned_folder_name:
+                raise ValueError("Kural dosyasında boş klasör adı bulunamaz.")
+
             for extension in extensions:
                 normalized = self._normalize_extension(extension)
-                self._extension_map[normalized] = folder_name
+                self._extension_map[normalized] = cleaned_folder_name
+
+    @staticmethod
+    def _validate_payload(payload: object) -> None:
+        if not isinstance(payload, dict):
+            raise ValueError("Kural dosyası sözlük yapısında olmalıdır.")
+
+        default_folder = payload.get("default_folder", "Diğer")
+        if not isinstance(default_folder, str) or not default_folder.strip():
+            raise ValueError("default_folder metin olmalı ve boş bırakılamaz.")
+
+        raw_rules = payload.get("rules", {})
+        if not isinstance(raw_rules, dict):
+            raise ValueError("rules alanı sözlük yapısında olmalıdır.")
+
+        for folder_name, extensions in raw_rules.items():
+            if not isinstance(folder_name, str) or not folder_name.strip():
+                raise ValueError("Kural dosyasında klasör adları metin olmalıdır.")
+
+            if not isinstance(extensions, list):
+                raise ValueError(f"{folder_name} için uzantılar liste olmalıdır.")
+
+            for extension in extensions:
+                if not isinstance(extension, str) or not extension.strip():
+                    raise ValueError(f"{folder_name} için geçersiz uzantı değeri bulundu.")
 
     @staticmethod
     def _normalize_extension(extension: str) -> str:
