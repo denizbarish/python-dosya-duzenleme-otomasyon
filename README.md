@@ -76,3 +76,4 @@ Uzantı-kategori eşlemeleri `config/organizasyon_kurallari.json` dosyasından o
 - Doldurulmuş Rapor-1: [docs/BLP_sube_no_Grup_17_dosya_ve_klasor_duzenleme_otomasyon_araci_rapor_1.md](docs/BLP_sube_no_Grup_17_dosya_ve_klasor_duzenleme_otomasyon_araci_rapor_1.md)
 - Doldurulmuş Rapor-2: [docs/BLP_sube_no_Grup_17_dosya_ve_klasor_duzenleme_otomasyon_araci_rapor_2.md](docs/BLP_sube_no_Grup_17_dosya_ve_klasor_duzenleme_otomasyon_araci_rapor_2.md)
 - Doldurulmuş Rapor-3: [docs/BLP_sube_no_Grup_17_dosya_ve_klasor_duzenleme_otomasyon_araci_rapor_3.md](docs/BLP_sube_no_Grup_17_dosya_ve_klasor_duzenleme_otomasyon_araci_rapor_3.md)
+- Doldurulmuş Rapor-4: [docs/BLP_sube_no_Grup_17_dosya_ve_klasor_duzenleme_otomasyon_araci_rapor_4.md](docs/BLP_sube_no_Grup_17_dosya_ve_klasor_duzenleme_otomasyon_araci_rapor_4.md)

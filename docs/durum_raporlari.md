@@ -80,9 +80,33 @@ Tamamlananlar:
 Not:
 - Bu rapor, PDF'deki 3. aşama çıktıları (ileri özellikler) ile uyumlu şekilde hazırlanmıştır.
 
+## Rapor-04 (Tamamlandı)
+Tarih: 14 Mayıs 2026
+Faz: Faz 4 (Test ve Hata Düzeltme)
+Durum: Yeşil
+Resmi teslim tarihi: 14.05.2026
+
+Teslim dosyası:
+- docs/BLP_sube_no_Grup_17_dosya_ve_klasor_duzenleme_otomasyon_araci_rapor_4.md
+
+Gerçekleşen ölçümler:
+- Test sonucu: 22 / 22 ✅ (13 yeni test eklendi)
+- Açık kritik hata: 0
+- Test kategorileri: Çekirdek + Senaryo + Edge Case + Regresyon
+
+Tamamlananlar:
+- 2 senaryo bazlı uçtan uca test
+- 7 sınır durum (edge case) test
+- 4 regresyon test
+- Hata ayıklama ve düzeltme bulguları
+- Test stratejisi dokümante edildi
+
+Not:
+- Bu rapor, PDF'deki 4. aşama çıktıları (test ve hata düzeltme) ile uyumlu şekilde hazırlanmıştır.
+
 ## Resmi Takvim Özet Kayıtları
 - 1. Rapor teslim: 20.04.2026 ✅
 - 2. Rapor teslim: 30.04.2026 ✅
 - 3. Rapor teslim: 07.05.2026 ✅
-- 4. Rapor teslim: 14.05.2026
+- 4. Rapor teslim: 14.05.2026 ✅
 - Final rapor + sunum: 21.05.2026
